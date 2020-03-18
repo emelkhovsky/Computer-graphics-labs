@@ -1,5 +1,9 @@
 #pragma once
 #include <qimage.h>
+#include <iostream>
+#include <string>
+#include "Filters.h"
+using namespace std;
 
 class Filters{
 public:
@@ -17,7 +21,7 @@ public:
 
 	QImage calculateNewImagePixMap(const QImage &photo, int radius);
 };
-
+//----------------------------------matrix--------------------------------------
 class Matrix_filter: public Filters {
 public:
 	float* vector;
@@ -78,8 +82,15 @@ public:
 	Sobelx() {
 		int size = 3;
 		vector = new float[size * size];
-		vector[0] = -1; vector[1] = 0; vector[2] = 1; vector[3] = -2; vector[4] = 0;
-		vector[5] = 2; vector[6] = -1; vector[7] = 0; vector[8] = 1;
+		vector[0] = -1; 
+		vector[1] = 0; 
+		vector[2] = 1; 
+		vector[3] = -2; 
+		vector[4] = 0;
+		vector[5] = 2; 
+		vector[6] = -1; 
+		vector[7] = 0; 
+		vector[8] = 1;
 	};
 	~Sobelx() {};
 };
@@ -107,11 +118,60 @@ public:
 };
 
 //-------------------------------------------------«адачи дл€ сдачи лабораторной работы-------------------------------------------------------------------
+//-------------------------------------------------1ое задание(2 точеченых и 2 матричных)--------------------------------------------------------------------
+class Transfer : public Filters {//перенос/поворот
+public:
+	Transfer() {};
+	~Transfer() {};
+	QImage calculateNewImagePixMap(const QImage &photo, int radius);
+};
+class Waves : public Filters {//волны
+public:
+	Waves() {};
+	~Waves() {};
+	QImage calculateNewImagePixMap(const QImage &photo, int radius);
+};
+class SharpnessLab : public Matrix_filter {//матричный резкость
+public:
+	SharpnessLab() {
+		int size = 3;
+		vector = new float[size * size];
+		vector[0] = -1; vector[1] = -1; vector[2] = -1; vector[3] = -1; vector[4] = 9;
+		vector[5] = -1; vector[6] = -1; vector[7] = -1; vector[8] = -1;
+	};
+	~SharpnessLab() {};
+};
+class Motion_blur : public Matrix_filter{//матричный motion blur
+public:
+	Motion_blur() : Matrix_filter(5) {
+		int size = 2 * mRadius + 1;
+		vector = new float[size * size];
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++){
+				if (i == j) {
+					vector[i * size + j] = 1.0f / size;
+				}
+				else {
+					vector[i * size + j] = 0;
+				} 
+			}
+		}
+
+	}
+};
 
 //----------------------------------------ћедианный фильтр--------------------------------
-class Median : public Matrix_filter {
+class Median : public Filters {
 public:
 	Median() {};
 	~Median() {};
-	QColor Median::calculateNewPixelColor(QImage photo, int x, int y, int radius);
+	QImage calculateNewImagePixMap(const QImage &photo, int radius);
+};
+
+//----------------------------------------—ерый мир--------------------------------
+class Gray_world : public Filters {
+public:
+	Gray_world() {};
+	~Gray_world() {};
+	QImage calculateNewImagePixMap(const QImage &photo, int radius);
 };

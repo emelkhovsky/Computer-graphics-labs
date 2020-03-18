@@ -4,6 +4,8 @@
 #include <iostream>
 using namespace std;
 
+#define PI 3.14159265
+
 template <class T>//чтобы не выйти за границы 255
 T clamp(T v, int max, int min) {
 	if (v > max) {
@@ -55,12 +57,15 @@ QColor Matrix_filter::calculateNewPixelColor(QImage photo, int x, int y, int rad
 	for (int i = -radius; i <= radius; i++) {
 		for (int j = -radius; j <= radius; j++) {
 			int idx = (i + radius) * size + j + radius;
-			QColor color = photo.pixelColor(clamp<int>(x + i, photo.width() - 1, 0), clamp<int>(y + j, photo.height() - 1, 0));//выяснили цвет пискселя в данной матрице на картинке
+			int p_x = clamp<int>(x + i, photo.width() - 1, 0);
+			int p_y = clamp<int>(y + j, photo.height() - 1, 0);
+			QColor color = photo.pixelColor(p_x, p_y);//выяснили цвет пискселя в данной матрице на картинке
 			returnR += color.red() * vector[idx];
 			returnG += color.green() * vector[idx];
 			returnB += color.blue() * vector[idx];
 		}
 	}
+	
 	return QColor(clamp(returnR, 255, 0), clamp(returnG, 255, 0), clamp(returnB, 255, 0));//чтобы не выйти за границы 255
 }
 
@@ -139,23 +144,126 @@ QImage Brightness::calculateNewImagePixMap(const  QImage &photo, int radius) {
 }
 
 //-------------------------------------------------Задачи для сдачи лабораторной работы-------------------------------------------------------------------
-
-//----------------------------------------Median--------------------------------
-QColor Median::calculateNewPixelColor(QImage photo, int x, int y, int radius) {
-	int size = 2 * radius + 1;//диаметр
-	for (int i = -radius; i <= radius; i++) {
-		for (int j = -radius; j <= radius; j++) {
-			int idx = (i + radius) * size + j + radius;
-			QColor color = photo.pixelColor(clamp<int>(x + i, photo.width() - 1, 0), clamp<int>(y + j, photo.height() - 1, 0));//выяснили цвет пискселя в данной матрице на картинке
-			int Intencity = 0.36 * color.red() + 0.53 * color.green() + 0.11 * color.blue();
-			vector[idx] = Intencity;
+//-------------------------------------------------1ое задание(2 точеченых и 2 матричных)--------------------------------------------------------------------
+QImage Transfer::calculateNewImagePixMap(const  QImage &photo, int radius) {//перенос/поворот
+	QImage result_image(photo); //конструктор QImage
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			if (x + 50 < photo.width()) {
+				QColor photo_color = photo.pixelColor(x + 50, y);
+				result_image.setPixelColor(x, y, photo_color);
+			}
+			else {
+				QRgb value_color = qRgb(0, 0, 0); // черный цвет
+				result_image.setPixelColor(x, y, value_color);
+			}
 
 		}
 	}
-	int kol = size * size;
-	insertSort(vector, kol);
-	int median_index = kol / 2;
-	QColor color = photo.vector[median_index];
+	return result_image;
+}
+QImage Waves::calculateNewImagePixMap(const  QImage &photo, int radius) {//волны
+	QImage result_image(photo); //конструктор QImage
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			if (x + 20 * sin((2 * PI * x) / 30) < photo.width()) {
+				QColor photo_color = photo.pixelColor(x + 20 * sin((2 * PI * x) / 30), y);
+				result_image.setPixelColor(x, y, photo_color);
+			}
+			else {
+				QColor photo_color = photo.pixelColor(x, y);
+				result_image.setPixelColor(x, y, photo_color);
+			}
+		}
+	}
+	return result_image;
+}
+//----------------------------------------Median--------------------------------
+QImage Median :: calculateNewImagePixMap(const QImage &photo, int radius) {
+	QImage result_image(photo);
+	int size = 2 * radius + 1;//диаметр
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			int returnR = 0;
+			int returnG = 0;
+			int returnB = 0;
+			int current_count = 0;
+			int* Intencity_list;
+			int* coordinates_list_x;
+			int* coordinates_list_y;
+			Intencity_list = new int[size * size];
+			coordinates_list_x = new int[size * size];
+			coordinates_list_y = new int[size * size];
+			cout << x << " " << y << endl;
+			for (int i = -radius; i <= radius; i++) {
+				for (int j = -radius; j <= radius; j++) {
+					int p_x = clamp<int>(x + i, photo.width() - 1, 0);
+					int p_y = clamp<int>(y + j, photo.height() - 1, 0);
+					if (x == 206 && y==15) {
+						cout << "hmmm " << p_x << " " << p_y << endl;
+					}
+					QColor color = photo.pixelColor(p_x, p_y);
+					int Intencity = 0.36 * color.red() + 0.53 * color.green() + 0.11 * color.blue();
+					Intencity_list[current_count] = Intencity;
+					coordinates_list_x[current_count] = p_x;
+					coordinates_list_y[current_count] = p_y;
+					current_count++;
+				}
+			}
+			float tmp;
+			int tmpp;
+			for (int i = 0; i < size * size; i++) { //сортировка пузырьком
+				for (int j = 1; j < size * size; j++) {
+					if (Intencity_list[j - 1] > Intencity_list[j]) {
+						tmp = Intencity_list[j - 1];
+						Intencity_list[j - 1] = Intencity_list[j];
+						Intencity_list[j] = tmp;
+						tmpp = coordinates_list_x[j - 1];
+						coordinates_list_x[j - 1] = coordinates_list_x[j];
+						coordinates_list_x[j] = tmpp;
+						tmpp = coordinates_list_y[j - 1];
+						coordinates_list_y[j - 1] = coordinates_list_y[j];
+						coordinates_list_y[j] = tmpp;
+					}
+				}
+			}
+			int median_index = size * size / 2;
+			int coord_x = coordinates_list_x[median_index];
+			int coord_y = coordinates_list_y[median_index];
+			QColor color = photo.pixelColor(coord_x, coord_y);
+			result_image.setPixelColor(x, y, color);
+		}
+	}
 
-	return color;
+	return result_image;
+}
+
+//----------------------------------------Серый мир--------------------------------
+QImage Gray_world::calculateNewImagePixMap(const  QImage &photo, int radius) {//перенос/поворот
+	QImage result_image(photo); //конструктор QImage
+	int R = 0;
+	int G = 0;
+	int B = 0;
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			QColor color = photo.pixelColor(x, y);
+			R += color.red();
+			G += color.green();
+			B += color.blue();
+		}
+	}
+	int kol = photo.width() * photo.height();
+	int Rav = R / kol;
+	int Gav = G / kol;
+	int Bav = B / kol;
+	int average = (Rav + Gav + Bav) / 3;
+
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			QColor color = photo.pixelColor(x, y);
+			color.setRgb(clamp(color.red() * average / Rav, 255, 0), clamp(color.green() * average / Gav, 255, 0), clamp(color.blue() * average / Bav, 255, 0));
+			result_image.setPixelColor(x, y, color);
+		}
+	}
+	return result_image;
 }
