@@ -175,3 +175,24 @@ public:
 	~Gray_world() {};
 	QImage calculateNewImagePixMap(const QImage &photo, int radius);
 };
+
+//----------------------------------линейное растяжение--------------------------------------
+class Linear_tension : public Filters {
+public:
+	Linear_tension() {};
+	~Linear_tension() {};
+
+	QImage calculateNewImagePixMap(const QImage &photo, int radius);
+};
+
+//---------------------------------морфологические операции---------------------------------
+class Morfo{//перенос/поворот
+public:
+	Morfo() {};
+	~Morfo() {};
+	QImage Dilation(const QImage &photo, bool *mask);
+	QImage Erosion(const QImage &photo, bool *mask);
+	QImage Opening(const QImage &photo, bool *mask);
+	QImage Closing(const QImage &photo, bool *mask);
+	QImage Grad(const QImage &photo, bool *mask);
+};

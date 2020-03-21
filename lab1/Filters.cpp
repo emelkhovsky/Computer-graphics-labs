@@ -5,6 +5,8 @@
 using namespace std;
 
 #define PI 3.14159265
+#define MH 3
+#define MW 3
 
 template <class T>//чтобы не выйти за границы 255
 T clamp(T v, int max, int min) {
@@ -194,14 +196,10 @@ QImage Median :: calculateNewImagePixMap(const QImage &photo, int radius) {
 			Intencity_list = new int[size * size];
 			coordinates_list_x = new int[size * size];
 			coordinates_list_y = new int[size * size];
-			cout << x << " " << y << endl;
 			for (int i = -radius; i <= radius; i++) {
 				for (int j = -radius; j <= radius; j++) {
 					int p_x = clamp<int>(x + i, photo.width() - 1, 0);
 					int p_y = clamp<int>(y + j, photo.height() - 1, 0);
-					if (x == 206 && y==15) {
-						cout << "hmmm " << p_x << " " << p_y << endl;
-					}
 					QColor color = photo.pixelColor(p_x, p_y);
 					int Intencity = 0.36 * color.red() + 0.53 * color.green() + 0.11 * color.blue();
 					Intencity_list[current_count] = Intencity;
@@ -262,6 +260,169 @@ QImage Gray_world::calculateNewImagePixMap(const  QImage &photo, int radius) {//
 		for (int y = 0; y < photo.height(); y++) {
 			QColor color = photo.pixelColor(x, y);
 			color.setRgb(clamp(color.red() * average / Rav, 255, 0), clamp(color.green() * average / Gav, 255, 0), clamp(color.blue() * average / Bav, 255, 0));
+			result_image.setPixelColor(x, y, color);
+		}
+	}
+	return result_image;
+}
+
+//----------------------------------------Линейное растяжение--------------------------------
+QImage Linear_tension::calculateNewImagePixMap(const  QImage &photo, int radius) {//перенос/поворот
+	QImage result_image(photo); //конструктор QImage
+	int maxR = 0;
+	int maxG = 0;
+	int maxB = 0;
+	int minR = 255;
+	int minG = 255;
+	int minB = 255;
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			QColor color = photo.pixelColor(x, y);
+			if (color.red() > maxR) {
+				maxR = color.red();
+			}
+			if (color.red() < minR) {
+				minR = color.red();
+			}
+			if (color.green() > maxG) {
+				maxG = color.green();
+			}
+			if (color.green() < minG) {
+				minG = color.green();
+			}
+			if (color.blue() > maxB) {
+				maxB = color.blue();
+			}
+			if (color.blue() < minB) {
+				minB = color.blue();
+			}
+		}
+	}
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			QColor color = photo.pixelColor(x, y);
+			int R = (color.red() - minR) * 255 / (maxR - minR);
+			int G = (color.green() - minG) * 255 / (maxG - minG);
+			int B = (color.blue() - minB) * 255 / (maxB - minB);
+			color.setRgb(R, G, B);
+			result_image.setPixelColor(x, y, color);
+		}
+	}
+	return result_image;
+}
+
+
+QImage Morfo ::Dilation(const  QImage &photo, bool *mask){
+	QImage result_image(photo);
+	// Width, Height – размеры исходного и результирующего изображений
+	// MW, MH – размеры структурного множества
+	int hieght = photo.height() - MH / 2;
+	int width = photo.width() - MW / 2;
+	for (int y = MH / 2; y < hieght; y++) {
+		for (int x = MW / 2; x < width; x++) {
+			int maxR = 0;
+			int maxG = 0;
+			int maxB = 0;
+			for (int j = -MH / 2; j <= MH / 2; j++) {
+				for (int i = -MW / 2; i <= MW / 2; i++) {
+					int p_x = clamp<int>(x + i, photo.width() - 1, 0);
+					int p_y = clamp<int>(y + j, photo.height() - 1, 0);
+					QColor color = photo.pixelColor(p_x, p_y);
+					if ((mask[i * MW + j]) && (color.red() > maxR)) {
+						maxR = color.red();
+					}
+					if ((mask[i * MW + j]) && (color.green() > maxG)) {
+						maxG = color.green();
+					}
+					if ((mask[i * MW + j]) && (color.blue() > maxB)) {
+						maxB = color.blue();
+					}
+					color.setRgb(maxR, maxG, maxB);
+					result_image.setPixelColor(x, y, color);
+				}
+			}
+		}
+	}
+	return result_image;
+}
+
+QImage Morfo::Erosion(const  QImage &photo, bool *mask) {
+	QImage result_image(photo);
+	// Width, Height – размеры исходного и результирующего изображений
+	// MW, MH – размеры структурного множества
+	int hieght = photo.height() - MH / 2;
+	int width = photo.width() - MW / 2;
+	for (int y = MH / 2; y < hieght; y++) {
+		for (int x = MW / 2; x < width; x++) {
+			int minR = 255;
+			int minG = 255;
+			int minB = 255;
+			for (int j = -MH / 2; j <= MH / 2; j++) {
+				for (int i = -MW / 2; i <= MW / 2; i++) {
+					int p_x = clamp<int>(x + i, photo.width() - 1, 0);
+					int p_y = clamp<int>(y + j, photo.height() - 1, 0);
+					QColor color = photo.pixelColor(p_x, p_y);
+					if ((mask[i * MW + j]) && (color.red() < minR)) {
+						minR = color.red();
+					}
+					if ((mask[i * MW + j]) && (color.green() < minG)) {
+						minG = color.green();
+					}
+					if ((mask[i * MW + j]) && (color.blue() < minB)) {
+						minB = color.blue();
+					}
+					color.setRgb(minR, minG, minB);
+					result_image.setPixelColor(x, y, color);
+				}
+			}
+		}
+	}
+	return result_image;
+}
+
+QImage Morfo::Opening(const  QImage &photo, bool *mask) {
+	QImage result_image(photo);
+
+	Morfo* eros = new Morfo();
+	QImage erosImage = eros->Erosion(photo, mask);
+
+	Morfo* dilat = new Morfo();
+	QImage dilatImage = dilat->Dilation(erosImage, mask);
+
+	return dilatImage;
+}
+
+
+QImage Morfo::Closing(const  QImage &photo, bool *mask) {
+	QImage result_image(photo);
+
+	Morfo* dilat = new Morfo();
+	QImage dilatImage = dilat->Dilation(photo, mask);
+
+	Morfo* eros = new Morfo();
+	QImage erosImage = eros->Erosion(dilatImage, mask);
+
+	return erosImage;
+}
+
+QImage Morfo::Grad(const  QImage &photo, bool *mask) {
+	QImage result_image(photo);
+
+	Morfo* dilat = new Morfo();
+	QImage dilatImage = dilat->Dilation(photo, mask);
+
+	Morfo* eros = new Morfo();
+	QImage erosImage = eros->Erosion(photo, mask);
+
+	for (int x = 0; x < photo.width(); x++) {
+		for (int y = 0; y < photo.height(); y++) {
+			QColor color = result_image.pixelColor(x, y);
+			QColor color_dil = dilatImage.pixelColor(x, y);
+			QColor color_er = erosImage.pixelColor(x, y);
+			int red = color_dil.red() - color_er.red();
+			int green = color_dil.green() - color_er.green();
+			int blue = color_dil.blue() - color_er.blue();
+			color.setRgb(red, green, blue);
 			result_image.setPixelColor(x, y, color);
 		}
 	}

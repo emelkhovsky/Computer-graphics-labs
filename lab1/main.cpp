@@ -5,6 +5,9 @@
 #include "Filters.h"
 using namespace std;
 
+#define MH 3
+#define MW 3
+
 int main(int argc, char *argv[]){
 	setlocale(LC_ALL, "Russian");
 	QImage photo;
@@ -16,7 +19,7 @@ int main(int argc, char *argv[]){
 	}
 	photo.load(QString(s.c_str()));//передали строку, переведенную в указатель на массив чаров, а дальше переводим в тип QString(для load нужен)
 	photo.save("Starting.jpg");
-	/*
+	
 	Invert_filter* invert = new Invert_filter();
 	QImage invertImage = invert->calculateNewImagePixMap(photo, 0);
 	invertImage.save("Invert.jpg");
@@ -73,8 +76,38 @@ int main(int argc, char *argv[]){
 	QImage gray_world_image = gray_world->calculateNewImagePixMap(photo, 5);
 	gray_world_image.save("Gray_world.jpg");
 
-	*/
 	Median* med = new Median();
 	QImage med_image = med->calculateNewImagePixMap(photo, 3);
 	med_image.save("Median.jpg");
+	
+	Linear_tension* linear_tension = new Linear_tension();
+	QImage linear_tensionImage = linear_tension->calculateNewImagePixMap(photo, 0);
+	linear_tensionImage.save("Linear_tension.jpg");
+	
+	bool *mask = new bool[MW * MH];
+	cout << "Введите структурный элемент 3 на 3" << endl;
+	for (int i = 0; i < MW; i++)
+		for (int j = 0; j < MH; j++)
+			cin >> mask[i * MW + j];
+	cout << " " << endl;
+	
+	Morfo* dilation = new Morfo();
+	QImage dilationImage = dilation->Dilation(photo, mask);
+	dilationImage.save("Dilation.jpg");
+
+	Morfo* erosion = new Morfo();
+	QImage erosionImage = erosion->Erosion(photo, mask);
+	erosionImage.save("Erosion.jpg");
+	
+	Morfo* opening = new Morfo();
+	QImage openingImage = opening->Opening(photo, mask);
+	openingImage.save("Opening.jpg");
+		
+	Morfo* closing = new Morfo();
+	QImage closingImage = closing->Closing(photo, mask);
+	closingImage.save("Closing.jpg");
+	
+	Morfo* grad = new Morfo();
+	QImage gradImage = grad->Grad(photo, mask);
+	gradImage.save("Grad.jpg");
 }
