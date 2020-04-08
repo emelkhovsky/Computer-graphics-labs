@@ -9,13 +9,12 @@
 #include "View.h"
 using namespace std;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 	QApplication a(argc, argv);
-	View example;
-	example.SetupView(200, 200);
-	example.show();
+	View example("testdata.bin");
 
+	example.resize(1000, 200);
+	example.show();
 
 	return a.exec();
 }
