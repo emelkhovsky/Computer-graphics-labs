@@ -28,12 +28,6 @@ public:
 		}
 		fclose(file);
 	}
-	int getW() {
-		return Y;
-	}
-	int getH() {
-		return X;
-	}
 };
 
 

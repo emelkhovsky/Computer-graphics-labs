@@ -4,12 +4,14 @@
 class View : public QGLWidget {
 public:
 	Bin test;
+	int layerNumber = 4;
 	View();
 	View(string path) {
 		test.readBIN(path);
 	}
 	~View();
+	void DrawQuads(int);
 	virtual void initializeGL();
 	virtual void resizeGL(int, int);
-	virtual void paintGL(int);
+	virtual void paintGL();
 };

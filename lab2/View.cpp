@@ -22,7 +22,7 @@ T clamp(T v, int max, int min) {
 
 GLint* TransferFunction(short value) {//переводит значения плотности томограммы в черно-белый цвет
 	int min = 0;
-	int max = 2000;
+	int max = 200;
 	int newVal = clamp<int>((value - min) * 255 / (max - min), 0, 255);
 	GLint *v = new GLint[3];
 	v[0] = newVal;
@@ -35,7 +35,6 @@ void View::initializeGL() {//инициализация
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//очистка буфера изображения
 }
 
-
 void View::resizeGL(int width, int height) {//окно вывода
 	glShadeModel(GL_SMOOTH);//с градиентом фигура или нет
 	glMatrixMode(GL_PROJECTION);//режим матрицы проекций
@@ -44,7 +43,7 @@ void View::resizeGL(int width, int height) {//окно вывода
 	glViewport(0, 0, width, height);//задали прямоугольник, через который мы видим эту проекцию
 }
 
-void View::paintGL(int layerNumber) {//отрисовка четырехугольника
+void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
 	glBegin(GL_QUADS);//указываем, что будем рисовать прямоугольник
 	for (int x_coord = 0; x_coord < test.X - 1; x_coord++) {
@@ -52,22 +51,28 @@ void View::paintGL(int layerNumber) {//отрисовка четырехугольника
 			short value;
 			//1 вершина
 			value = test.array[x_coord + y_coord * test.X + layerNumber * test.X * test.Y];//находим значение
-			glColor3i(TransferFunction(value)[0], TransferFunction(value)[1], TransferFunction(value)[2]);//задаем цвет
+			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);//задаем цвет
 			glVertex2i(x_coord, y_coord);//указываем вершину
 			//2 вершина
 			value = test.array[x_coord + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
-			glColor3i(TransferFunction(value)[0], TransferFunction(value)[1], TransferFunction(value)[2]);
+			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);
 			glVertex2i(x_coord, (y_coord + 1));
 			//3 вершина
 			value = test.array[(x_coord + 1) + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
-			glColor3i(TransferFunction(value)[0], TransferFunction(value)[1], TransferFunction(value)[2]);
+			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);
 			glVertex2i((x_coord + 1), (y_coord + 1));
 			//4 вершина
 			value = test.array[(x_coord + 1) + y_coord * test.X + layerNumber * test.X * test.Y];
-			glColor3i(TransferFunction(value)[0], TransferFunction(value)[1], TransferFunction(value)[2]);
+			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);
 			glVertex2i((x_coord + 1), y_coord);
 		}
 	}
 	glEnd();//закончили рисовать
+}
+
+void View::paintGL() {//отрисовка четырехугольника
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
+	DrawQuads(layerNumber);
+	//swapBuffers();
 }
 
