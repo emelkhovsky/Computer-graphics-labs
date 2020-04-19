@@ -4,7 +4,7 @@
 class View : public QGLWidget {
 public:
 	Bin test;
-	int layerNumber = 4;
+	int layerNumber;
 	View();
 	View(string path) {
 		test.readBIN(path);

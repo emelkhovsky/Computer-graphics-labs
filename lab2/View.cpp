@@ -9,7 +9,7 @@ View::View(){
 View::~View(){
 }
 
-template <class T>//чтобы не выйти за границы 255
+template <class T>//чтобы не выйти за границы 1
 T clamp(T v, int max, int min) {
 	if (v > max) {
 		return max;
@@ -20,15 +20,11 @@ T clamp(T v, int max, int min) {
 	return v;
 }
 
-GLint* TransferFunction(short value) {//переводит значения плотности томограммы в черно-белый цвет
+float TransferFunction(short value) {//переводит значения плотности томограммы в черно-белый цвет
 	int min = 0;
-	int max = 200;
+	int max = 2000;
 	int newVal = clamp<int>((value - min) * 255 / (max - min), 0, 255);
-	GLint *v = new GLint[3];
-	v[0] = newVal;
-	v[1] = newVal;
-	v[2] = newVal;
-	return v;
+	return clamp<float>(newVal / 200.f, 1, 0);//вычисляю в диапазоне от 0 до 1, потому что ???????????
 }
 
 void View::initializeGL() {//инициализация
@@ -49,21 +45,26 @@ void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
 	for (int x_coord = 0; x_coord < test.X - 1; x_coord++) {
 		for (int y_coord = 0; y_coord < test.Y - 1; y_coord++) {
 			short value;
+			float transfer;
 			//1 вершина
 			value = test.array[x_coord + y_coord * test.X + layerNumber * test.X * test.Y];//находим значение
-			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);//задаем цвет
+			transfer = TransferFunction(value);
+			glColor3f(transfer, transfer, transfer);//задаем цвет
 			glVertex2i(x_coord, y_coord);//указываем вершину
 			//2 вершина
 			value = test.array[x_coord + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
-			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);
+			transfer = TransferFunction(value);
+			glColor3f(transfer, transfer, transfer);
 			glVertex2i(x_coord, (y_coord + 1));
 			//3 вершина
 			value = test.array[(x_coord + 1) + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
-			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);
+			transfer = TransferFunction(value);
+			glColor3f(transfer, transfer, transfer);
 			glVertex2i((x_coord + 1), (y_coord + 1));
 			//4 вершина
 			value = test.array[(x_coord + 1) + y_coord * test.X + layerNumber * test.X * test.Y];
-			glColor3i(TransferFunction(value)[0] / 255.0f, TransferFunction(value)[1] / 255.0f, TransferFunction(value)[2] / 255.0f);
+			transfer = TransferFunction(value);
+			glColor3f(transfer, transfer, transfer);
 			glVertex2i((x_coord + 1), y_coord);
 		}
 	}
