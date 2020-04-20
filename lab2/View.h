@@ -4,7 +4,7 @@
 class View : public QGLWidget {
 public:
 	Bin test;
-	int layerNumber;
+	int layerNumber = 4;
 	View();
 	View(string path) {
 		test.readBIN(path);
@@ -15,3 +15,4 @@ public:
 	virtual void resizeGL(int, int);
 	virtual void paintGL();
 };
+	
