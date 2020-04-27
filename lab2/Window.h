@@ -14,7 +14,7 @@ public:
 	~Window();
 	QPushButton *m_button;
 	QSlider *slider;
-	View example;
+	View* example;
 private slots:
 	void handleButton();
 	void slider_function();

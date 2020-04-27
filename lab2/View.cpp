@@ -1,10 +1,8 @@
 #include <QtOpenGL/QGLWidget>
 #include "View.h"
 
-
-View::View(){
+View::View() {
 }
-
 
 View::~View(){
 }
@@ -75,5 +73,16 @@ void View::paintGL() {//отрисовка четырехугольника
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
 	DrawQuads(layerNumber);
 	//swapBuffers();
+}
+
+void View::input_layer(int value) {
+	if (value >= 2) {
+		layerNumber = value;
+	}
+	else {
+		layerNumber = 1;
+	}
+	
+	updateGL();//в любой ф-ии, где что-то перерисовывается, фигачим эту ф-ию
 }
 
