@@ -7,7 +7,7 @@ public:
 	int layerNumber;
 	GLuint VBOtexture;//номер текстуры в памяти видеокарты
 	QImage textureImage;
-	int mode = 0;
+	int mode;
 	View();
 	View(string path, QWidget* parent): QGLWidget(parent){
 		test.readBIN(path);
@@ -20,7 +20,7 @@ public:
 	virtual void paintGL();
 	void input_layer(int);
 	void Load2dTexture();
-	void genTextureImage();
+	void genTextureImage(int);
 	void VizualizationTexture();
 	void setmode(int);
 	void DrawQuadStrip();

@@ -1,5 +1,6 @@
 #include "Window.h"
 
+
 Window::Window(QWidget *parent): QMainWindow(parent){
 	example = new View("testdata.bin", this);
 	example->setGeometry(200, 200, 200, 200);
@@ -21,7 +22,7 @@ Window::~Window(){
 }
 
 void Window::handleButton(){
-	example->setmode(2);//вызываю режим текстуры
+	example->setmode(2);//указываю режим
 	example->resize(500, 500);
 	example->show();
 }

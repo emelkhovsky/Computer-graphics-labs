@@ -27,13 +27,22 @@ void View::input_layer(int value) {//функция, нужная для смены слоев в позунке
 	}
 
 	updateGL();//в любой ф-ии, где что-то перерисовывается, фигачим эту ф-ию
+	if (mode == 2) {
+		glEnable(GL_TEXTURE_2D);//включаем какую-то возможность gl
+		genTextureImage(layerNumber);
+		Load2dTexture();
+		updateGL();
+	}
+	else {
+		glDisable(GL_TEXTURE_2D);//выключаем какую-то возможность gl
+	}
 }
 
 void View::setmode(int value) {
 	mode = value;
 	if (mode == 2) {
 		glEnable(GL_TEXTURE_2D);//включаем какую-то возможность gl
-		genTextureImage();
+		genTextureImage(layerNumber);
 		Load2dTexture();
 		updateGL();
 	}
@@ -69,15 +78,13 @@ void View::paintGL() {//отрисовка четырехугольника
 	case 0://отрисовка четырехугольниками
 		DrawQuads(layerNumber);
 		break;
-	case 1:
+	case 1://через 4 точки прямоугольника, а потом добавляем по 2
 		DrawQuadStrip();
 		break;
 	case 2:
 		VizualizationTexture();//с текстурами
 		break;
 	}
-
-	swapBuffers();
 }
 
 void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
@@ -114,28 +121,29 @@ void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
 
 
 
-
-
 void View::Load2dTexture() {//загрузка текстуры в память видеокарты
 	glBindTexture(GL_TEXTURE_2D, VBOtexture);//привязываем текстуру к определенному текстурному типу
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureImage.width(), textureImage.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, textureImage.bits());//загружаем текстуру в память видеокарты(какая текстурка, базовый уровень детализации?, формат(цветовой) текстуры, ширина, высота, граница, формат(цветовой) пикселей, тип пикселей, данные)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//устанавливаем параметры для текущей текстуры, привязанной к текстурному блоку
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//какая текстура, масштабирование при изменении размера окна(вроде), алгоритм фильтрациии(крч похоже на размытие)
 }
-void View::genTextureImage() {//отрисовка текстурированного прямоугольника
+
+void View::genTextureImage(int layerNumber) {//отрисовка текстурированного прямоугольника
+	cout << layerNumber << endl;
 	int w = test.X;
 	int h = test.Y;
 	textureImage = QImage(w, h, QImage::Format_RGB32);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			QColor c = TransferFunction(test.array[layerNumber + w * h + w * y + x]);
+			float intensity = TransferFunction(test.array[layerNumber * w * h + w * y + x]);
+			QColor c = QColor::fromRgbF(intensity, intensity, intensity);
 			textureImage.setPixelColor(x, y, c);
 		}
 	}
 }
+
 void View::VizualizationTexture() {//рисуем один прямоугольник с наложенной текстурой
 	glBegin(GL_QUADS);
-
 	qglColor(QColor(255, 255, 255));
 
 	glTexCoord2f(0, 0);
