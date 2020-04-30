@@ -5,6 +5,9 @@ class View : public QGLWidget {
 public:
 	Bin test;
 	int layerNumber;
+	GLuint VBOtexture;//номер текстуры в памяти видеокарты
+	QImage textureImage;
+	int mode = 0;
 	View();
 	View(string path, QWidget* parent): QGLWidget(parent){
 		test.readBIN(path);
@@ -16,6 +19,10 @@ public:
 	virtual void resizeGL(int, int);
 	virtual void paintGL();
 	void input_layer(int);
-	//void input_layersdsad(int);
+	void Load2dTexture();
+	void genTextureImage();
+	void VizualizationTexture();
+	void setmode(int);
+	void DrawQuadStrip();
 };
 	

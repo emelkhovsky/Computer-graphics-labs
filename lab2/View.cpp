@@ -18,6 +18,31 @@ T clamp(T v, int max, int min) {
 	return v;
 }
 
+void View::input_layer(int value) {//функция, нужная для смены слоев в позунке
+	if (value >= 2) {
+		layerNumber = value;
+	}
+	else {
+		layerNumber = 1;
+	}
+
+	updateGL();//в любой ф-ии, где что-то перерисовывается, фигачим эту ф-ию
+}
+
+void View::setmode(int value) {
+	mode = value;
+	if (mode == 2) {
+		glEnable(GL_TEXTURE_2D);//включаем какую-то возможность gl
+		genTextureImage();
+		Load2dTexture();
+		updateGL();
+	}
+	else {
+		glDisable(GL_TEXTURE_2D);//выключаем какую-то возможность gl
+	}
+	paintGL();
+}
+
 float TransferFunction(short value) {//переводит значения плотности томограммы в черно-белый цвет
 	int min = 0;
 	int max = 2000;
@@ -27,6 +52,7 @@ float TransferFunction(short value) {//переводит значения плотности томограммы в
 
 void View::initializeGL() {//инициализация
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);//очистка буфера изображения
+	glGenTextures(1, &VBOtexture);//генерируем уникальный номер текстуры, создаем пространство, где будут все данные, связанные с текстурой
 }
 
 void View::resizeGL(int width, int height) {//окно вывода
@@ -35,6 +61,23 @@ void View::resizeGL(int width, int height) {//окно вывода
 	glLoadIdentity();//инициализировали матрицу и сбросили до состояния по умолчанию(единичной???)
 	glOrtho(0, test.X, 0, test.Y, -1, 1);//установка двумерной ортографической системы координат(тупо проекция картинки)
 	glViewport(0, 0, width, height);//задали прямоугольник, через который мы видим эту проекцию
+}
+
+void View::paintGL() {//отрисовка четырехугольника
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
+	switch (mode) {
+	case 0://отрисовка четырехугольниками
+		DrawQuads(layerNumber);
+		break;
+	case 1:
+		DrawQuadStrip();
+		break;
+	case 2:
+		VizualizationTexture();//с текстурами
+		break;
+	}
+
+	swapBuffers();
 }
 
 void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
@@ -69,20 +112,49 @@ void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
 	glEnd();//закончили рисовать
 }
 
-void View::paintGL() {//отрисовка четырехугольника
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
-	DrawQuads(layerNumber);
-	//swapBuffers();
+
+
+
+
+void View::Load2dTexture() {//загрузка текстуры в память видеокарты
+	glBindTexture(GL_TEXTURE_2D, VBOtexture);//привязываем текстуру к определенному текстурному типу
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureImage.width(), textureImage.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, textureImage.bits());//загружаем текстуру в память видеокарты(какая текстурка, базовый уровень детализации?, формат(цветовой) текстуры, ширина, высота, граница, формат(цветовой) пикселей, тип пикселей, данные)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//устанавливаем параметры для текущей текстуры, привязанной к текстурному блоку
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//какая текстура, масштабирование при изменении размера окна(вроде), алгоритм фильтрациии(крч похоже на размытие)
+}
+void View::genTextureImage() {//отрисовка текстурированного прямоугольника
+	int w = test.X;
+	int h = test.Y;
+	textureImage = QImage(w, h, QImage::Format_RGB32);
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			QColor c = TransferFunction(test.array[layerNumber + w * h + w * y + x]);
+			textureImage.setPixelColor(x, y, c);
+		}
+	}
+}
+void View::VizualizationTexture() {//рисуем один прямоугольник с наложенной текстурой
+	glBegin(GL_QUADS);
+
+	qglColor(QColor(255, 255, 255));
+
+	glTexCoord2f(0, 0);
+	glVertex2i(0, 0);
+
+	glTexCoord2f(0, 1);
+	glVertex2i(0, test.Y);
+
+	glTexCoord2f(1, 1);
+	glVertex2i(test.X, test.Y);
+
+	glTexCoord2f(1, 0);
+	glVertex2i(test.X, 0);
+
+	glEnd();
 }
 
-void View::input_layer(int value) {
-	if (value >= 2) {
-		layerNumber = value;
-	}
-	else {
-		layerNumber = 1;
-	}
-	
-	updateGL();//в любой ф-ии, где что-то перерисовывается, фигачим эту ф-ию
+
+void View::DrawQuadStrip() {
+
 }
 

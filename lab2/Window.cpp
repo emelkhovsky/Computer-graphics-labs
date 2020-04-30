@@ -21,6 +21,7 @@ Window::~Window(){
 }
 
 void Window::handleButton(){
+	example->setmode(2);//вызываю режим текстуры
 	example->resize(500, 500);
 	example->show();
 }
