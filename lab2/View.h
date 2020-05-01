@@ -8,8 +8,8 @@ public:
 	GLuint VBOtexture;//номер текстуры в памяти видеокарты
 	QImage textureImage;
 	int mode;
-	int min;
-	int max;
+	int min = 0;
+	int max = 2000;
 	View();
 	View(string path, QWidget* parent): QGLWidget(parent){
 		test.readBIN(path);
@@ -26,5 +26,5 @@ public:
 	void VizualizationTexture();
 	void setmode(int);
 	void DrawQuadStrip();
-};
+;};
 	

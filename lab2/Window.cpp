@@ -19,13 +19,14 @@ Window::Window(QWidget *parent): QMainWindow(parent){
 	bool ok;
 	int imin = QInputDialog::getInt(this, tr("input min transferfunction"), tr("Your min value:"), 0, 0, 5000, 1, &ok);
 	if (ok)//если человек нажал окей
-		cout << imin << endl;
+		example->min = imin;
 	int imax = QInputDialog::getInt(this, tr("input max transferfunction"), tr("Your max value:"), 0, 0, 5000, 1, &ok);
 	if (ok)//если человек нажал окей
-		cout << imax << endl;
+		example->max = imax;
 }
 
 Window::~Window(){
+
 }
 
 void Window::handleButton(){

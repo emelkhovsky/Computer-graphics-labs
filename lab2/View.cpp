@@ -52,9 +52,9 @@ void View::setmode(int value) {
 	paintGL();
 }
 
-float TransferFunction(short value) {//переводит значения плотности томограммы в черно-белый цвет
-	int min = 0;
-	int max = 2000;
+float TransferFunction(short value, int imin, int imax) {//переводит значения плотности томограммы в черно-белый цвет
+	int min = imin;
+	int max = imax;
 	int newVal = clamp<int>((value - min) * 255 / (max - min), 0, 255);
 	return clamp<float>(newVal / 200.f, 1, 0);//вычисляю в диапазоне от 0 до 1, потому что ???????????
 }
@@ -96,22 +96,22 @@ void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
 			float transfer;
 			//1 вершина
 			value = test.array[x_coord + y_coord * test.X + layerNumber * test.X * test.Y];//находим значение
-			transfer = TransferFunction(value);
+			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);//задаем цвет
 			glVertex2i(x_coord, y_coord);//указываем вершину
 			//2 вершина
 			value = test.array[x_coord + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
-			transfer = TransferFunction(value);
+			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);
 			glVertex2i(x_coord, (y_coord + 1));
 			//3 вершина
 			value = test.array[(x_coord + 1) + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
-			transfer = TransferFunction(value);
+			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);
 			glVertex2i((x_coord + 1), (y_coord + 1));
 			//4 вершина
 			value = test.array[(x_coord + 1) + y_coord * test.X + layerNumber * test.X * test.Y];
-			transfer = TransferFunction(value);
+			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);
 			glVertex2i((x_coord + 1), y_coord);
 		}
@@ -134,7 +134,7 @@ void View::genTextureImage(int layerNumber) {//отрисовка текстурированного прямо
 	textureImage = QImage(w, h, QImage::Format_RGB32);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			float intensity = TransferFunction(test.array[layerNumber * w * h + w * y + x]);
+			float intensity = TransferFunction(test.array[layerNumber * w * h + w * y + x], min, max);
 			QColor c = QColor::fromRgbF(intensity, intensity, intensity);
 			textureImage.setPixelColor(x, y, c);
 		}
