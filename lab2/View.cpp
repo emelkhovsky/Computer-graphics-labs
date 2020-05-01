@@ -55,11 +55,8 @@ void View::setmode(int value) {
 int TransferFunction(short value, int imin, int imax) {//переводит значения плотности томограммы в черно-белый цвет
 	int min = imin;
 	int max = imax;
-
 	int newVal = (value - min) * 255 / (max - min);
-
 	return newVal;
-
 }
 
 void View::initializeGL() {//инициализация

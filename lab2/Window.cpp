@@ -2,7 +2,14 @@
 
 
 Window::Window(QWidget *parent): QMainWindow(parent){
-	example = new View("testdata.bin", this);
+
+	bool ok;
+	QString iname = QInputDialog::getText(this, tr("input file name"), tr("Your file name:"), QLineEdit::Normal, "", &ok);//спрашиваем бинарный файл
+	string iname_string = iname.toStdString();//преобразовали QString к string
+	cout << iname_string << endl;
+
+
+	example = new View(iname_string, this);
 	example->setGeometry(200, 200, 200, 200);
 
 	setFixedSize(1200, 1200);
@@ -16,13 +23,17 @@ Window::Window(QWidget *parent): QMainWindow(parent){
 	sliderZ->setRange(0, max_count_of_layers);
 	connect(sliderZ, &QSlider::valueChanged, this, &Window::sliderZ_function);
 	
-	bool ok;
-	int imin = QInputDialog::getInt(this, tr("input min transferfunction"), tr("Your min value:"), 0, 0, 5000, 1, &ok);
+	int imin = QInputDialog::getInt(this, tr("input min transferfunction"), tr("Your min value:"), 0, 0, 5000, 1, &ok);//спрашиваем минимум плотности
 	if (ok)//если человек нажал окей
 		example->min = imin;
-	int imax = QInputDialog::getInt(this, tr("input max transferfunction"), tr("Your max value:"), 0, 0, 5000, 1, &ok);
+
+	int imax = QInputDialog::getInt(this, tr("input max transferfunction"), tr("Your max value:"), 0, 0, 5000, 1, &ok);//спрашиваем максимум плотности
 	if (ok)//если человек нажал окей
 		example->max = imax;
+	
+
+	
+	
 }
 
 Window::~Window(){
