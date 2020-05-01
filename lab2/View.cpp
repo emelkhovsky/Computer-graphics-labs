@@ -52,11 +52,14 @@ void View::setmode(int value) {
 	paintGL();
 }
 
-float TransferFunction(short value, int imin, int imax) {//переводит значения плотности томограммы в черно-белый цвет
+int TransferFunction(short value, int imin, int imax) {//переводит значения плотности томограммы в черно-белый цвет
 	int min = imin;
 	int max = imax;
-	int newVal = clamp<int>((value - min) * 255 / (max - min), 0, 255);
-	return clamp<float>(newVal / 200.f, 1, 0);//вычисляю в диапазоне от 0 до 1, потому что ???????????
+
+	int newVal = (value - min) * 255 / (max - min);
+
+	return newVal;
+
 }
 
 void View::initializeGL() {//инициализация
@@ -93,7 +96,7 @@ void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
 	for (int x_coord = 0; x_coord < test.X - 1; x_coord++) {
 		for (int y_coord = 0; y_coord < test.Y - 1; y_coord++) {
 			short value;
-			float transfer;
+			int transfer;
 			//1 вершина
 			value = test.array[x_coord + y_coord * test.X + layerNumber * test.X * test.Y];//находим значение
 			transfer = TransferFunction(value, min, max);
@@ -134,7 +137,7 @@ void View::genTextureImage(int layerNumber) {//отрисовка текстурированного прямо
 	textureImage = QImage(w, h, QImage::Format_RGB32);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			float intensity = TransferFunction(test.array[layerNumber * w * h + w * y + x], min, max);
+			int intensity = TransferFunction(test.array[layerNumber * w * h + w * y + x], min, max);
 			QColor c = QColor::fromRgbF(intensity, intensity, intensity);
 			textureImage.setPixelColor(x, y, c);
 		}
