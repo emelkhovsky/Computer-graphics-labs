@@ -2,6 +2,7 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QSlider>
+#include <QInputDialog>
 #include <QGLWidget>
 #include "Bin.h"
 #include "View.h"
@@ -13,10 +14,10 @@ public:
 	explicit Window(QWidget *parent = 0);
 	~Window();
 	QPushButton *m_button;
-	QSlider *slider;
+	QSlider *sliderZ;
 	View* example;
 private slots:
 	void handleButton();
-	void slider_function();
+	void sliderZ_function();
 };
 

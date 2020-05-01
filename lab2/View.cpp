@@ -129,7 +129,6 @@ void View::Load2dTexture() {//загрузка текстуры в память видеокарты
 }
 
 void View::genTextureImage(int layerNumber) {//отрисовка текстурированного прямоугольника
-	cout << layerNumber << endl;
 	int w = test.X;
 	int h = test.Y;
 	textureImage = QImage(w, h, QImage::Format_RGB32);

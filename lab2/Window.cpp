@@ -11,11 +11,18 @@ Window::Window(QWidget *parent): QMainWindow(parent){
 	connect(m_button, SIGNAL(released()), this, SLOT(handleButton()));
 
 
-	slider = new QSlider(Qt::Horizontal, this);
+	sliderZ = new QSlider(Qt::Horizontal, this);
 	int max_count_of_layers = example->test.Z;
-	slider->setRange(0, max_count_of_layers);
-	connect(slider, &QSlider::valueChanged, this, &Window::slider_function);
+	sliderZ->setRange(0, max_count_of_layers);
+	connect(sliderZ, &QSlider::valueChanged, this, &Window::sliderZ_function);
 	
+	bool ok;
+	int imin = QInputDialog::getInt(this, tr("input min transferfunction"), tr("Your min value:"), 0, 0, 5000, 1, &ok);
+	if (ok)//если человек нажал окей
+		cout << imin << endl;
+	int imax = QInputDialog::getInt(this, tr("input max transferfunction"), tr("Your max value:"), 0, 0, 5000, 1, &ok);
+	if (ok)//если человек нажал окей
+		cout << imax << endl;
 }
 
 Window::~Window(){
@@ -27,7 +34,7 @@ void Window::handleButton(){
 	example->show();
 }
 
-void Window::slider_function() {
-	int value = slider->value();
+void Window::sliderZ_function() {
+	int value = sliderZ->value();
 	example->input_layer(value - 1);
 }
