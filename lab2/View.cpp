@@ -68,7 +68,20 @@ void View::resizeGL(int width, int height) {//окно вывода
 	glShadeModel(GL_SMOOTH);//с градиентом фигура или нет
 	glMatrixMode(GL_PROJECTION);//режим матрицы проекций
 	glLoadIdentity();//инициализировали матрицу и сбросили до состо€ни€ по умолчанию(единичной???)
-	glOrtho(0, test.X, 0, test.Y, -1, 1);//установка двумерной ортографической системы координат(тупо проекци€ картинки)
+	if (slaider_axis == "Z") {
+		first = test.X;
+		second = test.Y;
+	}
+	else if (slaider_axis == "X") {
+		first = test.Y;
+		second = test.Z;
+	}
+	else {
+		first = test.X;
+		second = test.Z;
+	}
+	cout << first << " " << second << endl;
+	glOrtho(0, first, 0, second, -1, 1);//установка двумерной ортографической системы координат(тупо проекци€ картинки)
 	glViewport(0, 0, width, height);//задали пр€моугольник, через который мы видим эту проекцию
 }
 
@@ -90,27 +103,27 @@ void View::paintGL() {//отрисовка четырехугольника
 void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
 	glBegin(GL_QUADS);//указываем, что будем рисовать пр€моугольник
-	for (int x_coord = 0; x_coord < test.X - 1; x_coord++) {
-		for (int y_coord = 0; y_coord < test.Y - 1; y_coord++) {
+	for (int x_coord = 0; x_coord < first - 1; x_coord++) {
+		for (int y_coord = 0; y_coord < second - 1; y_coord++) {
 			short value;
 			int transfer;
 			//1 вершина
-			value = test.array[x_coord + y_coord * test.X + layerNumber * test.X * test.Y];//находим значение
+			value = test.array[x_coord + y_coord * first + layerNumber * first * second];//находим значение
 			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);//задаем цвет
 			glVertex2i(x_coord, y_coord);//указываем вершину
 			//2 вершина
-			value = test.array[x_coord + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
+			value = test.array[x_coord + (y_coord + 1) * first + layerNumber * first * second];
 			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);
 			glVertex2i(x_coord, (y_coord + 1));
 			//3 вершина
-			value = test.array[(x_coord + 1) + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
+			value = test.array[(x_coord + 1) + (y_coord + 1) * first + layerNumber * first * second];
 			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);
 			glVertex2i((x_coord + 1), (y_coord + 1));
 			//4 вершина
-			value = test.array[(x_coord + 1) + y_coord * test.X + layerNumber * test.X * test.Y];
+			value = test.array[(x_coord + 1) + y_coord * first + layerNumber * first * second];
 			transfer = TransferFunction(value, min, max);
 			glColor3f(transfer, transfer, transfer);
 			glVertex2i((x_coord + 1), y_coord);
@@ -129,8 +142,8 @@ void View::Load2dTexture() {//загрузка текстуры в пам€ть видеокарты
 }
 
 void View::genTextureImage(int layerNumber) {//отрисовка текстурированного пр€моугольника
-	int w = test.X;
-	int h = test.Y;
+	int w = first;
+	int h = second;
 	textureImage = QImage(w, h, QImage::Format_RGB32);
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
@@ -149,19 +162,48 @@ void View::VizualizationTexture() {//рисуем один пр€моугольник с наложенной текс
 	glVertex2i(0, 0);
 
 	glTexCoord2f(0, 1);
-	glVertex2i(0, test.Y);
+	glVertex2i(0, second);
 
 	glTexCoord2f(1, 1);
-	glVertex2i(test.X, test.Y);
+	glVertex2i(first, second);
 
 	glTexCoord2f(1, 0);
-	glVertex2i(test.X, 0);
+	glVertex2i(first, 0);
 
 	glEnd();
 }
 
 
 void View::DrawQuadStrip() {
+	short value;
+	int transfer;
+	for (int y_coord = 0; y_coord < second - 1; y_coord++){
+		for (int x_coord = 0; x_coord < first; x_coord++){
 
+				glBegin(GL_QUAD_STRIP);
+				
+				value = test.array[x_coord + y_coord * first + layerNumber * first * second];//находим значение
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);//задаем цвет
+				glVertex2i(x_coord, y_coord);//указываем вершину
+				//2 вершина
+				value = test.array[x_coord + (y_coord + 1) * first + layerNumber * first * second];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i(x_coord, (y_coord + 1));
+				//3 вершина
+				value = test.array[(x_coord + 1) + (y_coord + 1) * first + layerNumber * first * second];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x_coord + 1), (y_coord + 1));
+				//4 вершина
+				value = test.array[(x_coord + 1) + y_coord * first + layerNumber * first * second];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x_coord + 1), y_coord);
+
+				glEnd();
+		}
+	}
 }
 
