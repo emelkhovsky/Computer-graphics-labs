@@ -84,7 +84,7 @@ Window::~Window(){
 
 void Window::handleButton(){
 	example->setmode(modenumber);//указываю режим
-	example->resize(512, 512);
+	example->resize(example->first, example->second);
 	example->show();
 }
 

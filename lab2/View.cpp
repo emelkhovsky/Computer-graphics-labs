@@ -101,6 +101,7 @@ void View::paintGL() {//отрисовка четырехугольника
 }
 
 void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
+	cout << layerNumber << endl;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
 	glBegin(GL_QUADS);//указываем, что будем рисовать прямоугольник
 	for (int x_coord = 0; x_coord < first - 1; x_coord++) {
