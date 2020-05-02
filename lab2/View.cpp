@@ -101,35 +101,95 @@ void View::paintGL() {//отрисовка четырехугольника
 }
 
 void View::DrawQuads(int layerNumber) {//отрисовка четырехугольника
-	cout << layerNumber << endl;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//очищает буфер цвета и буфер глубины
 	glBegin(GL_QUADS);//указываем, что будем рисовать прямоугольник
-	for (int x_coord = 0; x_coord < first - 1; x_coord++) {
-		for (int y_coord = 0; y_coord < second - 1; y_coord++) {
-			short value;
-			int transfer;
-			//1 вершина
-			value = test.array[x_coord + y_coord * first + layerNumber * first * second];//находим значение
-			transfer = TransferFunction(value, min, max);
-			glColor3f(transfer, transfer, transfer);//задаем цвет
-			glVertex2i(x_coord, y_coord);//указываем вершину
-			//2 вершина
-			value = test.array[x_coord + (y_coord + 1) * first + layerNumber * first * second];
-			transfer = TransferFunction(value, min, max);
-			glColor3f(transfer, transfer, transfer);
-			glVertex2i(x_coord, (y_coord + 1));
-			//3 вершина
-			value = test.array[(x_coord + 1) + (y_coord + 1) * first + layerNumber * first * second];
-			transfer = TransferFunction(value, min, max);
-			glColor3f(transfer, transfer, transfer);
-			glVertex2i((x_coord + 1), (y_coord + 1));
-			//4 вершина
-			value = test.array[(x_coord + 1) + y_coord * first + layerNumber * first * second];
-			transfer = TransferFunction(value, min, max);
-			glColor3f(transfer, transfer, transfer);
-			glVertex2i((x_coord + 1), y_coord);
+
+	if (slaider_axis == "Z") {
+		for (int x_coord = 0; x_coord < test.X - 1; x_coord++) {
+			for (int y_coord = 0; y_coord < test.Y - 1; y_coord++) {
+				short value;
+				int transfer;
+				//1 вершина
+				value = test.array[x_coord + y_coord * test.X + layerNumber * test.X * test.Y];//находим значение
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);//задаем цвет
+				glVertex2i(x_coord, y_coord);//указываем вершину
+				//2 вершина
+				value = test.array[x_coord + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i(x_coord, (y_coord + 1));
+				//3 вершина
+				value = test.array[(x_coord + 1) + (y_coord + 1) * test.X + layerNumber * test.X * test.Y];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x_coord + 1), (y_coord + 1));
+				//4 вершина
+				value = test.array[(x_coord + 1) + y_coord * test.X + layerNumber * test.X * test.Y];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x_coord + 1), y_coord);
+			}
 		}
 	}
+	else if (slaider_axis == "X") {
+		for (int z_coord = 0; z_coord < test.Z - 1; z_coord++) {
+			for (int y_coord = 0; y_coord < test.Y - 1; y_coord++) {
+				short value;
+				int transfer;
+				//1 вершина
+				value = test.array[z_coord * test.X * test.Y + y_coord * test.X + layerNumber];//находим значение
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);//задаем цвет
+				glVertex2i(y_coord, z_coord);//указываем вершину
+				//2 вершина
+				value = test.array[(z_coord + 1) * test.X * test.Y + y_coord * test.X + layerNumber];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i(y_coord, (z_coord + 1));
+				//3 вершина
+				value = test.array[(z_coord + 1) * test.X * test.Y + (y_coord + 1) * test.X + layerNumber];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((y_coord + 1), (z_coord + 1));
+				//4 вершина
+				value = test.array[z_coord * test.X * test.Y + (y_coord + 1) * test.X + layerNumber];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((y_coord + 1), z_coord);
+			}
+		}
+	}
+	else {
+		for (int z_coord = 0; z_coord < test.Z - 1; z_coord++) {
+			for (int x_coord = 0; x_coord < test.X - 1; x_coord++) {
+				short value;
+				int transfer;
+				//1 вершина
+				value = test.array[z_coord * test.X * test.Y + layerNumber * test.X + x_coord];//находим значение
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);//задаем цвет
+				glVertex2i(x_coord, z_coord);//указываем вершину
+				//2 вершина
+				value = test.array[(z_coord + 1) * test.X * test.Y + layerNumber * test.X + x_coord];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i(x_coord, (z_coord + 1));
+				//3 вершина
+				value = test.array[(z_coord + 1) * test.X * test.Y + layerNumber * test.X + x_coord + 1];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x_coord + 1), (z_coord + 1));
+				//4 вершина
+				value = test.array[z_coord * test.X * test.Y + layerNumber * test.X + x_coord + 1];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x_coord + 1), z_coord);
+			}
+		}
+	}
+
+	
 	glEnd();//закончили рисовать
 }
 
@@ -143,16 +203,43 @@ void View::Load2dTexture() {//загрузка текстуры в память видеокарты
 }
 
 void View::genTextureImage(int layerNumber) {//отрисовка текстурированного прямоугольника
-	int w = first;
-	int h = second;
-	textureImage = QImage(w, h, QImage::Format_RGB32);
-	for (int y = 0; y < h; y++) {
-		for (int x = 0; x < w; x++) {
-			int intensity = TransferFunction(test.array[layerNumber * w * h + w * y + x], min, max);
-			QColor c = QColor::fromRgbF(intensity, intensity, intensity);
-			textureImage.setPixelColor(x, y, c);
+	int w = test.X;
+	int h = test.Y;
+	int d = test.Z;
+
+
+	if (slaider_axis == "Z") {
+		textureImage = QImage(w, h, QImage::Format_RGB32);
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int intensity = TransferFunction(test.array[layerNumber * w * h + w * y + x], min, max);
+				QColor c = QColor::fromRgbF(intensity, intensity, intensity);
+				textureImage.setPixelColor(x, y, c);
+			}
 		}
 	}
+	else if (slaider_axis == "X") {
+		textureImage = QImage(h, d, QImage::Format_RGB32);
+		for (int z = 0; z < d; z++) {
+			for (int y = 0; y < h; y++) {
+				int intensity = TransferFunction(test.array[z * w * h + w * y + layerNumber], min, max);
+				QColor c = QColor::fromRgbF(intensity, intensity, intensity);
+				textureImage.setPixelColor(y, z, c);
+			}
+		}
+	}
+	else {
+		textureImage = QImage(w, d, QImage::Format_RGB32);
+		for (int z = 0; z < d; z++) {
+			for (int x = 0; x < w; x++) {
+				int intensity = TransferFunction(test.array[z * w * h + w * layerNumber + x], min, max);
+				QColor c = QColor::fromRgbF(intensity, intensity, intensity);
+				textureImage.setPixelColor(x, z, c);
+			}
+		}
+	}
+
+	
 }
 
 void View::VizualizationTexture() {//рисуем один прямоугольник с наложенной текстурой
@@ -176,34 +263,97 @@ void View::VizualizationTexture() {//рисуем один прямоугольник с наложенной текс
 
 
 void View::DrawQuadStrip() {
-	short value;
-	int transfer;
-	for (int y_coord = 0; y_coord < second - 1; y_coord++){
-		for (int x_coord = 0; x_coord < first; x_coord++){
-
+	int w = test.X;
+	int h = test.Y;
+	int d = test.Z;
+	if (slaider_axis == "Z") {
+		for (int x = 0; x < w - 1; x++) {
+			for (int y = 0; y < h - 1; y++) {
+				short value;
+				int transfer;
 				glBegin(GL_QUAD_STRIP);
-				
-				value = test.array[x_coord + y_coord * first + layerNumber * first * second];//находим значение
+				//1 вершина
+				value = test.array[x + y * w + layerNumber * w * h];//находим значение
 				transfer = TransferFunction(value, min, max);
 				glColor3f(transfer, transfer, transfer);//задаем цвет
-				glVertex2i(x_coord, y_coord);//указываем вершину
+				glVertex2i(x, y);//указываем вершину
 				//2 вершина
-				value = test.array[x_coord + (y_coord + 1) * first + layerNumber * first * second];
+				value = test.array[x + (y + 1) * w + layerNumber * w * h];
 				transfer = TransferFunction(value, min, max);
 				glColor3f(transfer, transfer, transfer);
-				glVertex2i(x_coord, (y_coord + 1));
+				glVertex2i(x, (y + 1));
 				//3 вершина
-				value = test.array[(x_coord + 1) + (y_coord + 1) * first + layerNumber * first * second];
+				value = test.array[(x + 1) + (y + 1) * w + layerNumber * w * h];
 				transfer = TransferFunction(value, min, max);
 				glColor3f(transfer, transfer, transfer);
-				glVertex2i((x_coord + 1), (y_coord + 1));
+				glVertex2i((x + 1), (y + 1));
 				//4 вершина
-				value = test.array[(x_coord + 1) + y_coord * first + layerNumber * first * second];
+				value = test.array[(x + 1) + y * w + layerNumber * w * h];
 				transfer = TransferFunction(value, min, max);
 				glColor3f(transfer, transfer, transfer);
-				glVertex2i((x_coord + 1), y_coord);
-
+				glVertex2i((x + 1), y);
 				glEnd();
+			}
+		}
+	}
+	else if (slaider_axis == "X") {
+		for (int z = 0; z < d - 1; z++) {
+			for (int y = 0; y < h - 1; y++) {
+				short value;
+				int transfer;
+				glBegin(GL_QUAD_STRIP);
+				//1 вершина
+				value = test.array[z * w * h + y * w + layerNumber];//находим значение
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);//задаем цвет
+				glVertex2i(y, z);//указываем вершину
+				//2 вершина
+				value = test.array[(z + 1) * w * h + y * w + layerNumber];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i(y, (z + 1));
+				//3 вершина
+				value = test.array[(z + 1) * w * h + (y + 1) * w + layerNumber];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((y + 1), (z + 1));
+				//4 вершина
+				value = test.array[z * w * h + (y + 1) * w + layerNumber];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((y + 1), z);
+				glEnd();
+			}
+		}
+	}
+	else {
+		for (int z = 0; z < d - 1; z++) {
+			for (int x = 0; x < w - 1; x++) {
+				short value;
+				int transfer;
+				glBegin(GL_QUAD_STRIP);
+				//1 вершина
+				value = test.array[z * w * h + layerNumber * w + x];//находим значение
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);//задаем цвет
+				glVertex2i(x, z);//указываем вершину
+				//2 вершина
+				value = test.array[(z + 1) * w * h + layerNumber * w + x];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i(x, (z + 1));
+				//3 вершина
+				value = test.array[(z + 1) * w * h + layerNumber * w + x + 1];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x + 1), (z + 1));
+				//4 вершина
+				value = test.array[z * w * h + layerNumber * w + x + 1];
+				transfer = TransferFunction(value, min, max);
+				glColor3f(transfer, transfer, transfer);
+				glVertex2i((x + 1), z);
+				glEnd();
+			}
 		}
 	}
 }
